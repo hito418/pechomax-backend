@@ -49,6 +49,8 @@ if (process?.env?.NODE_ENV === 'DEV') {
   showRoutes(app)
 }
 
+console.log('APP_PORT:', process.env.APP_PORT)
+
 serve(
   {
     fetch: app.fetch,

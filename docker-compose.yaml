@@ -23,6 +23,7 @@ services:
       FIREBASE_MEASUREMENT_ID: ${FIREBASE_MEASUREMENT_ID}
       PAGE_SIZE: ${PAGE_SIZE}
       MAX_FILE_SIZE: ${MAX_FILE_SIZE}
+      APP_PORT: ${APP_PORT}
       NODE_ENV: ${NODE_ENV}
 
 networks:

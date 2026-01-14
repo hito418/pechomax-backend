@@ -16,8 +16,8 @@ const envSchema = type({
   FIREBASE_MESSAGING_SENDER_ID: 'string',
   FIREBASE_APP_ID: 'string',
   FIREBASE_MEASUREMENT_ID: 'string',
-  PAGE_SIZE: type.string.default('15'),
-  MAX_FILE_SIZE: type.string.default((10 * 1024 * 1024).toString()),
+  PAGE_SIZE: type("string.numeric").default('15'),
+  MAX_FILE_SIZE: type("string.numeric").default((10 * 1024 * 1024).toString()),
   APP_PORT: type("string.numeric").default("3000"),
   NODE_ENV: '"DEV" | "PROD"',
 })
