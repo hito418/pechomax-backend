@@ -33,4 +33,4 @@ USER app
 
 COPY --from=builder --chown=app:nodejs /app .
 
-CMD node dist/server/main.js
+CMD ["node", "apps/server/dist/main.js"]
