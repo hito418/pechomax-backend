@@ -1,0 +1,8 @@
+FROM node:23.7.0-alpine
+
+WORKDIR /app
+
+RUN npm i -g corepack
+
+RUN corepack enable
+RUN corepack use pnpm@latest

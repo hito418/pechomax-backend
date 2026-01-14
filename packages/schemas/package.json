@@ -1,0 +1,39 @@
+{
+  "name": "@repo/schemas",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "lint": "oxlint -c oxlintrc.json src",
+    "format": "prettier src --check",
+    "migration:generate": "drizzle-kit generate",
+    "migration:run": "drizzle-kit migrate",
+    "drizzle:studio": "drizzle-kit studio --host=0.0.0.0",
+    "build": "tsc",
+    "dev": "pnpm drizzle:studio"
+  },
+  "devDependencies": {
+    "@repo/oxlint-config": "workspace:*",
+    "@repo/ts-config": "workspace:*",
+    "drizzle-kit": "^0.22.8",
+    "drizzle-orm": "^0.31.4",
+    "oxlint": "catalog:",
+    "pg": "catalog:",
+    "typescript": "catalog:"
+  },
+  "files": [
+    "dist"
+  ],
+  "exports": {
+    ".": {
+      "source": "./src/index.ts",
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.d.ts"
+    },
+    "./*": {
+      "source": "./src/schemas/*.ts",
+      "types": "./dist/schemas/*.d.ts",
+      "import": "./dist/schemas/*.d.ts"
+    }
+  }
+}

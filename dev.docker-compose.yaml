@@ -1,0 +1,15 @@
+include:
+  - path: deps.docker-compose.yaml
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    user: 1000:1000
+    ports:
+      - 4000:4000 # hono
+      - 4983:4983 # drizzle-studio
+    command: pnpm turbo -F @repo/server -F @repo/schemas dev
+    volumes:
+      - ./:/app

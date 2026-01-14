@@ -1,0 +1,42 @@
+{
+  "name": "@repo/server",
+  "version": "0.0.1",
+  "description": "",
+  "author": "",
+  "private": true,
+  "license": "UNLICENSED",
+  "type": "module",
+  "scripts": {
+    "build": "rm -rf dist && tsup",
+    "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
+    "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
+    "start": "node --env-file .env dist/main.js",
+    "start:no-env": "node dist/main.js",
+    "dev": "tsx --env-file .env --watch src/main.ts"
+  },
+  "dependencies": {
+    "@hono/node-server": "^1.10.0",
+    "@hono/standard-validator": "^0.1.5",
+    "@node-rs/argon2": "^2.0.2",
+    "@oslojs/crypto": "^1.0.1",
+    "@oslojs/encoding": "^1.1.0",
+    "@repo/schemas": "workspace:*",
+    "arktype": "^2.1.22",
+    "firebase": "^10.11.0",
+    "hono": "^4.2.4",
+    "kysely": "^0.27.6",
+    "neverthrow": "^8.2.0",
+    "pg": "^8.11.5",
+    "uuid": "^13.0.0"
+  },
+  "devDependencies": {
+    "@faker-js/faker": "^8.4.1",
+    "@repo/oxlint-config": "workspace:*",
+    "@repo/ts-config": "workspace:*",
+    "@types/node": "^20.3.1",
+    "@types/pg": "^8.11.5",
+    "tsup": "^8.5.0",
+    "tsx": "^4.20.5",
+    "typescript": "catalog:"
+  }
+}
