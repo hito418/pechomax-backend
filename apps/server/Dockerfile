@@ -31,6 +31,6 @@ RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 app
 USER app
 
-COPY --from=builder --chown=app:nodejs /app/apps/server/dist ./dist
+COPY --from=builder --chown=app:nodejs /app .
 
-CMD node dist/server/main.mjs
+CMD node dist/server/main.js
