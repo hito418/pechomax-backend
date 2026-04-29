@@ -67,7 +67,7 @@ const categoriesRoute = new HonoVar()
         .selectFrom('categories')
         .selectAll()
         .where('id', '=', id)
-        .execute()
+        .executeTakeFirst()
 
       if (!categoryItem) {
         return ctx.json({ message: 'Category not found' }, 404)
