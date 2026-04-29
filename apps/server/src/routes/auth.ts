@@ -34,7 +34,7 @@ const authRoute = new HonoVar()
         return ctx.json({ message: 'Admin already exists' }, 400)
       }
 
-      const hashedPassword = await hash(password, {})
+      const hashedPassword = await hash(password)
 
       const userList = await db
         .insertInto('users')
@@ -133,7 +133,7 @@ const authRoute = new HonoVar()
         return ctx.json({ message: 'User not found' }, 404)
       }
 
-      const isMatch = await verify(password, user.password)
+      const isMatch = await verify(user.password, password)
 
       if (isMatch) {
         const payload: Payload = {
