@@ -79,7 +79,7 @@ const authRoute = new HonoVar()
           email,
           password: hashedPassword,
           profile_pic:
-            'https://firebasestorage.googleapis.com/v0/b/pechomax-cfa82.appspot.com/o/profilePic%2Fdefault.png?alt=media&token=58d39852-07a3-489c-9c51-3a448ea90729',
+            'https://firebasestorage.googleapis.com/v0/b/pechomax-df198.firebasestorage.app/o/Sample_User_Icon.png?alt=media&token=12417236-333f-4ce0-90fb-e25fb527bc62',
         })
         .returningAll()
         .execute()
