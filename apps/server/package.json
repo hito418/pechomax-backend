@@ -23,7 +23,7 @@
     "@oslojs/encoding": "^1.1.0",
     "@repo/schemas": "workspace:*",
     "arktype": "^2.1.22",
-    "firebase": "^10.11.0",
+    "firebase-admin": "^13.0.0",
     "hono": "^4.2.4",
     "kysely": "^0.27.6",
     "neverthrow": "^8.2.0",
