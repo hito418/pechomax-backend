@@ -10,6 +10,7 @@
     "build": "rm -rf dist && tsup src/main.ts",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
+    "typecheck": "tsc --noEmit",
     "start": "node --env-file .env dist/main.js",
     "start:no-env": "node dist/main.js",
     "dev": "tsx --env-file .env --watch src/main.ts"

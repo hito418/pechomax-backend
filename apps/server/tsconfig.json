@@ -5,6 +5,6 @@
     "baseUrl": "./",
     "tsBuildInfoFile": "node_modules/.cache/tsbuildinfo.json"
   },
-  "include": ["src/**/*.ts", "src/**/*.tsx", "tsup.config.ts"],
+  "include": ["src/**/*.ts", "tsup.config.ts"],
   "exclude": ["node_modules"]
 }
