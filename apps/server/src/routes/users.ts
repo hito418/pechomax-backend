@@ -3,6 +3,7 @@ import { type } from 'arktype'
 import { env } from 'hono/adapter'
 import { setSignedCookie } from 'hono/cookie'
 import { sign } from 'hono/jwt'
+import { jsonArrayFrom, jsonObjectFrom } from 'kysely/helpers/postgres'
 import { uploadProfile } from 'src/lib/firebase'
 import { HonoVar } from 'src/lib/hono'
 import { isAuth } from 'src/middlewares/isAuth'
@@ -36,6 +37,26 @@ usersRoute.get(
         'users.created_at',
         'users.updated_at',
       ])
+      .select((eb) => [
+        jsonObjectFrom(
+          eb
+            .selectFrom('levels')
+            .selectAll()
+            .whereRef('levels.id', '=', 'users.level_id')
+        ).as('level'),
+        jsonArrayFrom(
+          eb
+            .selectFrom('catches')
+            .selectAll()
+            .whereRef('catches.user_id', '=', 'users.id')
+        ).as('catches'),
+        jsonArrayFrom(
+          eb
+            .selectFrom('locations')
+            .selectAll()
+            .whereRef('locations.user_id', '=', 'users.id')
+        ).as('locations'),
+      ])
       .orderBy('users.updated_at desc')
       .limit(pageSize)
       .offset((page - 1) * pageSize)
@@ -65,6 +86,26 @@ usersRoute.get('/all', async (ctx) => {
       'users.created_at',
       'users.updated_at',
     ])
+    .select((eb) => [
+      jsonObjectFrom(
+        eb
+          .selectFrom('levels')
+          .selectAll()
+          .whereRef('levels.id', '=', 'users.level_id')
+      ).as('level'),
+      jsonArrayFrom(
+        eb
+          .selectFrom('catches')
+          .selectAll()
+          .whereRef('catches.user_id', '=', 'users.id')
+      ).as('catches'),
+      jsonArrayFrom(
+        eb
+          .selectFrom('locations')
+          .selectAll()
+          .whereRef('locations.user_id', '=', 'users.id')
+      ).as('locations'),
+    ])
     .execute()
 
   return ctx.json(userList, 200)
@@ -92,6 +133,26 @@ usersRoute.get('/self', isAuth(), async (ctx) => {
       'users.score',
       'users.created_at',
       'users.updated_at',
+    ])
+    .select((eb) => [
+      jsonObjectFrom(
+        eb
+          .selectFrom('levels')
+          .selectAll()
+          .whereRef('levels.id', '=', 'users.level_id')
+      ).as('level'),
+      jsonArrayFrom(
+        eb
+          .selectFrom('catches')
+          .selectAll()
+          .whereRef('catches.user_id', '=', 'users.id')
+      ).as('catches'),
+      jsonArrayFrom(
+        eb
+          .selectFrom('locations')
+          .selectAll()
+          .whereRef('locations.user_id', '=', 'users.id')
+      ).as('locations'),
     ])
     .where('users.id', '=', id)
     .executeTakeFirst()
@@ -131,6 +192,26 @@ usersRoute.get(
         'users.score',
         'users.created_at',
         'users.updated_at',
+      ])
+      .select((eb) => [
+        jsonObjectFrom(
+          eb
+            .selectFrom('levels')
+            .selectAll()
+            .whereRef('levels.id', '=', 'users.level_id')
+        ).as('level'),
+        jsonArrayFrom(
+          eb
+            .selectFrom('catches')
+            .selectAll()
+            .whereRef('catches.user_id', '=', 'users.id')
+        ).as('catches'),
+        jsonArrayFrom(
+          eb
+            .selectFrom('locations')
+            .selectAll()
+            .whereRef('locations.user_id', '=', 'users.id')
+        ).as('locations'),
       ])
       .where('users.username', '=', username)
       .executeTakeFirst()

@@ -4,6 +4,7 @@ import { HonoVar } from 'src/lib/hono'
 import { isAuth } from 'src/middlewares/isAuth'
 import { env } from 'hono/adapter'
 import { type } from 'arktype'
+import { jsonArrayFrom, jsonObjectFrom } from 'kysely/helpers/postgres'
 
 const conversationsRoute = new HonoVar()
   .basePath('/conversations')
@@ -15,13 +16,30 @@ const conversationsRoute = new HonoVar()
 
     const conversations = await db
       .selectFrom('conversations')
-      .leftJoin('messages', 'conversations.id', 'messages.conversation_id')
-      .leftJoin('users', 'conversations.user_id', 'users.id')
-      .leftJoin('categories', 'conversations.category_id', 'categories.id')
+      .selectAll('conversations')
+      .select((eb) => [
+        jsonObjectFrom(
+          eb
+            .selectFrom('users')
+            .selectAll()
+            .whereRef('users.id', '=', 'conversations.user_id')
+        ).as('user'),
+        jsonObjectFrom(
+          eb
+            .selectFrom('categories')
+            .selectAll()
+            .whereRef('categories.id', '=', 'conversations.category_id')
+        ).as('category'),
+        jsonArrayFrom(
+          eb
+            .selectFrom('messages')
+            .selectAll()
+            .whereRef('messages.conversation_id', '=', 'conversations.id')
+        ).as('messages'),
+      ])
       .limit(pageSize)
       .offset((page - 1) * pageSize)
       .orderBy('conversations.updated_at', 'desc')
-      .selectAll()
       .execute()
 
     return ctx.json(conversations)
@@ -34,23 +52,31 @@ const conversationsRoute = new HonoVar()
 
     const conversations = await db
       .selectFrom('conversations')
-      .leftJoin(
-        (eb) =>
+      .selectAll('conversations')
+      .select((eb) => [
+        jsonObjectFrom(
           eb
-            .selectFrom('messages as m')
-            .where('m.user_id', '=', id)
-            .orderBy('m.created_at', 'desc')
-            .limit(3)
+            .selectFrom('users')
             .selectAll()
-            .as('latest_messages'),
-        (join) =>
-          join.onRef('latest_messages.conversation_id', '=', 'conversations.id')
-      )
-      .leftJoin('users', 'conversations.user_id', 'users.id')
-      .leftJoin('categories', 'conversations.category_id', 'categories.id')
-      .where('user_id', '=', id)
-      .orderBy('conversations.updated_at', 'desc')
-      .selectAll()
+            .whereRef('users.id', '=', 'conversations.user_id')
+        ).as('user'),
+        jsonObjectFrom(
+          eb
+            .selectFrom('categories')
+            .selectAll()
+            .whereRef('categories.id', '=', 'conversations.category_id')
+        ).as('category'),
+        jsonArrayFrom(
+          eb
+            .selectFrom('messages')
+            .selectAll()
+            .whereRef('messages.conversation_id', '=', 'conversations.id')
+            .orderBy('messages.created_at', 'desc')
+            .limit(3)
+        ).as('messages'),
+      ])
+      .where('conversations.user_id', '=', id)
+      .orderBy('conversations.created_at', 'desc')
       .execute()
 
     return ctx.json(conversations)
@@ -69,25 +95,37 @@ const conversationsRoute = new HonoVar()
 
       const conversation = await db
         .selectFrom('conversations')
-        .leftJoin(
-          (eb) =>
+        .selectAll('conversations')
+        .select((eb) => [
+          jsonObjectFrom(
             eb
-              .selectFrom('messages as m')
-              .orderBy('m.created_at', 'desc')
+              .selectFrom('users')
               .selectAll()
-              .as('latest_messages'),
-          (join) =>
-            join.onRef(
-              'latest_messages.conversation_id',
-              '=',
-              'conversations.id'
-            )
-        )
-        .leftJoin('users', 'conversations.user_id', 'users.id')
-        .leftJoin('categories', 'conversations.category_id', 'categories.id')
+              .whereRef('users.id', '=', 'conversations.user_id')
+          ).as('user'),
+          jsonObjectFrom(
+            eb
+              .selectFrom('categories')
+              .selectAll()
+              .whereRef('categories.id', '=', 'conversations.category_id')
+          ).as('category'),
+          jsonArrayFrom(
+            eb
+              .selectFrom('messages')
+              .selectAll('messages')
+              .select((eb2) => [
+                jsonObjectFrom(
+                  eb2
+                    .selectFrom('users')
+                    .selectAll()
+                    .whereRef('users.id', '=', 'messages.user_id')
+                ).as('user'),
+              ])
+              .whereRef('messages.conversation_id', '=', 'conversations.id')
+              .orderBy('messages.created_at', 'desc')
+          ).as('messages'),
+        ])
         .where('conversations.id', '=', id)
-        .orderBy('conversations.updated_at', 'desc')
-        .selectAll()
         .executeTakeFirst()
 
       if (!conversation) {
@@ -120,12 +158,19 @@ const conversationsRoute = new HonoVar()
 
       const messageList = await db
         .selectFrom('messages')
-        .leftJoin('users', 'messages.user_id', 'users.id')
+        .selectAll('messages')
+        .select((eb) => [
+          jsonObjectFrom(
+            eb
+              .selectFrom('users')
+              .selectAll()
+              .whereRef('users.id', '=', 'messages.user_id')
+          ).as('user'),
+        ])
         .where('messages.conversation_id', '=', id)
         .orderBy('messages.created_at', 'desc')
         .limit(pageSize)
         .offset((page - 1) * pageSize)
-        .selectAll()
         .execute()
 
       if (messageList.length === 0) {

@@ -1,6 +1,7 @@
 import { sValidator } from '@hono/standard-validator'
 import { type } from 'arktype'
 import { env } from 'hono/adapter'
+import { jsonObjectFrom } from 'kysely/helpers/postgres'
 import { uploadMessage } from 'src/lib/firebase'
 import { HonoVar } from 'src/lib/hono'
 import { isAuth } from 'src/middlewares/isAuth'
@@ -18,8 +19,15 @@ messagesRoute.get(
 
     const messageList = await db
       .selectFrom('messages')
-      .selectAll()
-      .leftJoin('users', 'messages.user_id', 'users.id')
+      .selectAll('messages')
+      .select((eb) => [
+        jsonObjectFrom(
+          eb
+            .selectFrom('users')
+            .selectAll()
+            .whereRef('users.id', '=', 'messages.user_id')
+        ).as('user'),
+      ])
       .orderBy('messages.updated_at desc')
       .limit(pageSize)
       .offset((page - 1) * pageSize)
@@ -58,8 +66,15 @@ messagesRoute.get(
 
     const messageItem = await db
       .selectFrom('messages')
-      .selectAll()
-      .leftJoin('users', 'messages.user_id', 'users.id')
+      .selectAll('messages')
+      .select((eb) => [
+        jsonObjectFrom(
+          eb
+            .selectFrom('users')
+            .selectAll()
+            .whereRef('users.id', '=', 'messages.user_id')
+        ).as('user'),
+      ])
       .where('messages.id', '=', id)
       .executeTakeFirst()
 

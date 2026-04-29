@@ -1,6 +1,7 @@
 import { sValidator } from '@hono/standard-validator'
 import { type } from 'arktype'
 import { env } from 'hono/adapter'
+import { jsonObjectFrom } from 'kysely/helpers/postgres'
 import { uploadCatch } from 'src/lib/firebase'
 import { HonoVar } from 'src/lib/hono'
 import { isAuth } from 'src/middlewares/isAuth'
@@ -18,10 +19,27 @@ const catchesRoute = new HonoVar()
 
       const catchList = await db
         .selectFrom('catches')
-        .selectAll()
-        .leftJoin('users', 'catches.user_id', 'users.id')
-        .leftJoin('species', 'catches.species_id', 'species.id')
-        .leftJoin('locations', 'catches.location_id', 'locations.id')
+        .selectAll('catches')
+        .select((eb) => [
+          jsonObjectFrom(
+            eb
+              .selectFrom('users')
+              .selectAll()
+              .whereRef('users.id', '=', 'catches.user_id')
+          ).as('user'),
+          jsonObjectFrom(
+            eb
+              .selectFrom('species')
+              .selectAll()
+              .whereRef('species.id', '=', 'catches.species_id')
+          ).as('species'),
+          jsonObjectFrom(
+            eb
+              .selectFrom('locations')
+              .selectAll()
+              .whereRef('locations.id', '=', 'catches.location_id')
+          ).as('location'),
+        ])
         .orderBy('catches.updated_at desc')
         .limit(pageSize)
         .offset((page - 1) * pageSize)
@@ -38,9 +56,21 @@ const catchesRoute = new HonoVar()
 
     const catchList = await db
       .selectFrom('catches')
-      .selectAll()
-      .leftJoin('species', 'catches.species_id', 'species.id')
-      .leftJoin('locations', 'catches.location_id', 'locations.id')
+      .selectAll('catches')
+      .select((eb) => [
+        jsonObjectFrom(
+          eb
+            .selectFrom('species')
+            .selectAll()
+            .whereRef('species.id', '=', 'catches.species_id')
+        ).as('species'),
+        jsonObjectFrom(
+          eb
+            .selectFrom('locations')
+            .selectAll()
+            .whereRef('locations.id', '=', 'catches.location_id')
+        ).as('location'),
+      ])
       .where('catches.user_id', '=', id)
       .execute()
 
@@ -53,10 +83,27 @@ const catchesRoute = new HonoVar()
 
     const catchItem = await db
       .selectFrom('catches')
-      .selectAll()
-      .leftJoin('users', 'catches.user_id', 'users.id')
-      .leftJoin('species', 'catches.species_id', 'species.id')
-      .leftJoin('locations', 'catches.location_id', 'locations.id')
+      .selectAll('catches')
+      .select((eb) => [
+        jsonObjectFrom(
+          eb
+            .selectFrom('users')
+            .selectAll()
+            .whereRef('users.id', '=', 'catches.user_id')
+        ).as('user'),
+        jsonObjectFrom(
+          eb
+            .selectFrom('species')
+            .selectAll()
+            .whereRef('species.id', '=', 'catches.species_id')
+        ).as('species'),
+        jsonObjectFrom(
+          eb
+            .selectFrom('locations')
+            .selectAll()
+            .whereRef('locations.id', '=', 'catches.location_id')
+        ).as('location'),
+      ])
       .where('catches.id', '=', id)
       .executeTakeFirst()
 

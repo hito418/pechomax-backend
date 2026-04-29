@@ -1,6 +1,7 @@
 import { sValidator } from '@hono/standard-validator'
 import { type } from 'arktype'
 import { env } from 'hono/adapter'
+import { jsonArrayFrom, jsonObjectFrom } from 'kysely/helpers/postgres'
 import { HonoVar } from 'src/lib/hono'
 import { isAuth } from 'src/middlewares/isAuth'
 
@@ -17,7 +18,23 @@ speciesRoute.get(
 
     const speciesList = await db
       .selectFrom('species')
-      .selectAll()
+      .selectAll('species')
+      .select((eb) => [
+        jsonArrayFrom(
+          eb
+            .selectFrom('speciesLocation')
+            .selectAll('speciesLocation')
+            .select((eb2) => [
+              jsonObjectFrom(
+                eb2
+                  .selectFrom('locations')
+                  .selectAll()
+                  .whereRef('locations.id', '=', 'speciesLocation.location_id')
+              ).as('location'),
+            ])
+            .whereRef('speciesLocation.species_id', '=', 'species.id')
+        ).as('speciesLoactions'),
+      ])
       .orderBy('species.updated_at desc')
       .limit(pageSize)
       .offset((page - 1) * pageSize)
@@ -41,7 +58,23 @@ speciesRoute.get(
 
     const speciesItem = await db
       .selectFrom('species')
-      .selectAll()
+      .selectAll('species')
+      .select((eb) => [
+        jsonArrayFrom(
+          eb
+            .selectFrom('speciesLocation')
+            .selectAll('speciesLocation')
+            .select((eb2) => [
+              jsonObjectFrom(
+                eb2
+                  .selectFrom('locations')
+                  .selectAll()
+                  .whereRef('locations.id', '=', 'speciesLocation.location_id')
+              ).as('location'),
+            ])
+            .whereRef('speciesLocation.species_id', '=', 'species.id')
+        ).as('speciesLoactions'),
+      ])
       .where('species.id', '=', id)
       .executeTakeFirst()
 
@@ -90,7 +123,29 @@ speciesRoute.post(
         .execute()
     }
 
-    return ctx.json(speciesItem, 201)
+    const returningSpecies = await db
+      .selectFrom('species')
+      .selectAll('species')
+      .select((eb) => [
+        jsonArrayFrom(
+          eb
+            .selectFrom('speciesLocation')
+            .selectAll('speciesLocation')
+            .select((eb2) => [
+              jsonObjectFrom(
+                eb2
+                  .selectFrom('locations')
+                  .selectAll()
+                  .whereRef('locations.id', '=', 'speciesLocation.location_id')
+              ).as('location'),
+            ])
+            .whereRef('speciesLocation.species_id', '=', 'species.id')
+        ).as('speciesLoactions'),
+      ])
+      .where('species.id', '=', speciesItem.id)
+      .executeTakeFirst()
+
+    return ctx.json(returningSpecies, 201)
   }
 )
 
@@ -154,7 +209,29 @@ speciesRoute.put(
         .execute()
     }
 
-    return ctx.json(speciesItem)
+    const returningSpecies = await db
+      .selectFrom('species')
+      .selectAll('species')
+      .select((eb) => [
+        jsonArrayFrom(
+          eb
+            .selectFrom('speciesLocation')
+            .selectAll('speciesLocation')
+            .select((eb2) => [
+              jsonObjectFrom(
+                eb2
+                  .selectFrom('locations')
+                  .selectAll()
+                  .whereRef('locations.id', '=', 'speciesLocation.location_id')
+              ).as('location'),
+            ])
+            .whereRef('speciesLocation.species_id', '=', 'species.id')
+        ).as('speciesLoactions'),
+      ])
+      .where('species.id', '=', speciesItem.id)
+      .executeTakeFirst()
+
+    return ctx.json(returningSpecies)
   }
 )
 
