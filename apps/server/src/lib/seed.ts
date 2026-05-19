@@ -1,197 +1,223 @@
-import { faker } from '@faker-js/faker'
-import { randomFrom, randomNumber, randomsFrom } from './random'
 import { hash } from '@node-rs/argon2'
 import { db } from './db'
+import {
+  catchPictures,
+  DEMO_PASSWORD,
+  seedCatches,
+  seedCategories,
+  seedConversations,
+  seedIds,
+  seedLevels,
+  seedLocations,
+  seedMessages,
+  seedSpecies,
+  seedSpeciesLocations,
+  seedUsers,
+} from './seedData'
 
-async function createUser(
-  role: 'User' | 'Admin',
-  level: string,
-  username?: string,
-  password?: string
-) {
-  const hashedPassword = await hash(password ?? faker.internet.password())
+const conversationIdsByKey = {
+  annecy: seedIds.conversations.annecy,
+  lacanau: seedIds.conversations.lacanau,
+  loire: seedIds.conversations.loire,
+  mer: seedIds.conversations.mer,
+  rhone: seedIds.conversations.rhone,
+  truite: seedIds.conversations.truite,
+} as const
 
-  const user = await db
-    .insertInto('users')
-    .values({
-      email: faker.internet.email(),
-      password: hashedPassword,
-      username: username ?? faker.person.firstName(),
-      role: role,
-      profile_pic: 'https://thispersondoesnotexist.com/',
-      level_id: level,
-    })
-    .returningAll()
-    .executeTakeFirstOrThrow()
+const MESSAGE_START_MS = Date.parse('2026-04-23T08:00:00.000Z')
 
-  return user
+function messageTimestamp(index: number) {
+  return new Date(MESSAGE_START_MS + index * 47 * 60 * 1000)
 }
 
-async function createCategory() {
-  const cat = await db
-    .insertInto('categories')
-    .values({
-      name: faker.lorem.word(),
-    })
-    .returningAll()
-    .executeTakeFirstOrThrow()
-
-  return cat
+function catchTimestamp(date: string) {
+  return new Date(`${date}T12:00:00.000Z`)
 }
 
-async function createLevel(value: number, start: number, end?: number) {
-  const level = await db
-    .insertInto('levels')
-    .values({
-      title: faker.lorem.word(),
-      value,
-      start,
-      end: end ?? null,
-    })
-    .returningAll()
-    .executeTakeFirstOrThrow()
-
-  return level
+async function clearDatabase() {
+  await db.deleteFrom('messages').execute()
+  await db.deleteFrom('conversations').execute()
+  await db.deleteFrom('catches').execute()
+  await db.deleteFrom('speciesLocation').execute()
+  await db.deleteFrom('locations').execute()
+  await db.deleteFrom('species').execute()
+  await db.deleteFrom('categories').execute()
+  await db.deleteFrom('users').execute()
+  await db.deleteFrom('levels').execute()
 }
 
-async function createConversation(owner: string, cat: string) {
-  const conversation = await db
-    .insertInto('conversations')
-    .values({
-      user_id: owner,
-      title: faker.lorem.word(),
-      category_id: cat,
-    })
-    .returningAll()
-    .executeTakeFirstOrThrow()
-
-  return conversation
-}
-
-async function createMessage(owner: string, conv: string) {
-  const message = await db
-    .insertInto('messages')
-    .values({
-      user_id: owner,
-      conversation_id: conv,
-      content: faker.lorem.sentence(),
-      pictures: [],
-    })
-    .returningAll()
-    .executeTakeFirstOrThrow()
-
-  return message
-}
-
-async function createSpecies() {
-  const spc = await db
-    .insertInto('species')
-    .values({
-      name: faker.lorem.word(),
-      point_value: faker.number.int({ max: 100 }),
-    })
-    .returningAll()
-    .executeTakeFirstOrThrow()
-
-  return spc
-}
-
-async function createLocation(owner: string, species: string[]) {
-  const loc = await db
-    .insertInto('locations')
-    .values({
-      latitude: faker.location.latitude().toString(),
-      longitude: faker.location.longitude().toString(),
-      name: faker.lorem.word(),
-      user_id: owner,
-      description: faker.lorem.sentence(),
-    })
-    .returningAll()
-    .executeTakeFirstOrThrow()
-
-  await Promise.all(
-    species.map((s) =>
-      db
-        .insertInto('speciesLocation')
-        .values({ location_id: loc.id, species_id: s })
-        .execute()
-    )
+function levelIdForScore(score: number) {
+  const level = seedLevels.find(
+    (item) => score >= item.start && (item.end === null || score <= item.end)
   )
 
-  return loc
+  return level?.id ?? seedIds.levels.debutant
 }
 
-async function createCatch(owner: string, species: string, location: string) {
-  const catchesItem = await db
-    .insertInto('catches')
-    .values({
-      date: faker.date.recent().toISOString(),
-      length: faker.number.int({ max: 100 }),
-      weight: faker.number.int({ max: 100 }),
-      location_id: location,
-      pictures: [],
-      point_value: faker.number.int({ max: 100 }),
-      description: faker.lorem.sentence(),
-      user_id: owner,
-      species_id: species,
-    })
-    .returningAll()
-    .executeTakeFirstOrThrow()
+function speciesPointValue(speciesId: string) {
+  const species = seedSpecies.find((item) => item.id === speciesId)
+  return species?.point_value ?? 1
+}
 
-  return catchesItem
+function scoreByUser() {
+  return seedCatches.reduce<Record<string, number>>((acc, catchItem) => {
+    const score =
+      speciesPointValue(catchItem.species_id) *
+      catchItem.length *
+      catchItem.weight
+    acc[catchItem.user_id] = (acc[catchItem.user_id] ?? 0) + score
+    return acc
+  }, {})
+}
+
+async function insertLevels() {
+  await db.insertInto('levels').values(seedLevels).execute()
+}
+
+async function insertUsers() {
+  const hashedPassword = await hash(DEMO_PASSWORD)
+
+  await db
+    .insertInto('users')
+    .values(
+      seedUsers.map((user) => ({
+        ...user,
+        level_id: seedIds.levels.debutant,
+        password: hashedPassword,
+        score: 0,
+      }))
+    )
+    .execute()
+}
+
+async function insertCategories() {
+  await db.insertInto('categories').values(seedCategories).execute()
+}
+
+async function insertSpecies() {
+  await db.insertInto('species').values(seedSpecies).execute()
+}
+
+async function insertLocations() {
+  await db.insertInto('locations').values(seedLocations).execute()
+}
+
+async function insertSpeciesLocations() {
+  await db
+    .insertInto('speciesLocation')
+    .values(
+      seedSpeciesLocations.map(([locationId, speciesId], index) => ({
+        id: `50000000-0000-4000-8000-${String(index + 1).padStart(12, '0')}`,
+        location_id: locationId,
+        species_id: speciesId,
+      }))
+    )
+    .execute()
+}
+
+async function insertCatches() {
+  await db
+    .insertInto('catches')
+    .values(
+      seedCatches.map((catchItem) => ({
+        date: catchItem.date,
+        description: catchItem.description,
+        id: catchItem.id,
+        length: catchItem.length,
+        location_id: catchItem.location_id,
+        pictures: [catchPictures[catchItem.pictureIndex % catchPictures.length]],
+        point_value:
+          speciesPointValue(catchItem.species_id) *
+          catchItem.length *
+          catchItem.weight,
+        species_id: catchItem.species_id,
+        user_id: catchItem.user_id,
+        created_at: catchTimestamp(catchItem.date),
+        updated_at: catchTimestamp(catchItem.date),
+        weight: catchItem.weight,
+      }))
+    )
+    .execute()
+}
+
+async function updateUserScores() {
+  const scores = scoreByUser()
+
+  await Promise.all(
+    seedUsers.map((user) => {
+      const score = scores[user.id] ?? 0
+      return db
+        .updateTable('users')
+        .set({
+          level_id: levelIdForScore(score),
+          score,
+        })
+        .where('id', '=', user.id)
+        .execute()
+    })
+  )
+}
+
+async function insertConversations() {
+  await db
+    .insertInto('conversations')
+    .values(
+      seedConversations.map((conversation, index) => ({
+        ...conversation,
+        created_at: messageTimestamp(index * 8),
+        updated_at: messageTimestamp(index * 8 + 7),
+      }))
+    )
+    .execute()
+}
+
+async function insertMessages() {
+  await db
+    .insertInto('messages')
+    .values(
+      seedMessages.map(([conversationKey, userId, content], index) => ({
+        content,
+        conversation_id: conversationIdsByKey[conversationKey],
+        created_at: messageTimestamp(index),
+        id: `80000000-0000-4000-8000-${String(index + 1).padStart(12, '0')}`,
+        pictures: [],
+        updated_at: messageTimestamp(index),
+        user_id: userId,
+      }))
+    )
+    .execute()
 }
 
 export default async function seedDb() {
-  const levelList = await Promise.all([
-    createLevel(1, 0, 100),
-    createLevel(2, 101, 200),
-    createLevel(3, 201, 300),
-    createLevel(4, 301),
-  ])
-
-  const userList = await Promise.all([
-    ...Array.from({ length: 10 }, () => createUser('User', levelList[0].id)),
-    createUser('Admin', levelList[0].id, 'admin', 'adminadmin'),
-  ])
-
-  const catList = await Promise.all(
-    Array.from({ length: 3 }, () => createCategory())
-  )
-
-  const conversationList = await Promise.all(
-    Array.from({ length: 20 }, () =>
-      createConversation(randomFrom(userList).id, randomFrom(catList).id)
-    )
-  )
-
-  for (const conv of conversationList) {
-    await Promise.all(
-      Array.from({ length: 10 }, () =>
-        createMessage(randomFrom(userList).id, conv.id)
-      )
-    )
+  if (process.env.NODE_ENV !== 'DEV') {
+    console.warn('Skipping seed: deterministic demo seed only runs in DEV.')
+    return
   }
 
-  const speciesList = await Promise.all(
-    Array.from({ length: 10 }, () => createSpecies())
-  )
+  await clearDatabase()
+  await insertLevels()
+  await insertUsers()
+  await insertCategories()
+  await insertSpecies()
+  await insertLocations()
+  await insertSpeciesLocations()
+  await insertCatches()
+  await updateUserScores()
+  await insertConversations()
+  await insertMessages()
 
-  const locationList = await Promise.all(
-    Array.from({ length: 10 }, () =>
-      createLocation(
-        randomFrom(userList).id,
-        randomsFrom(speciesList, randomNumber(5)).map((s) => s.id)
-      )
-    )
-  )
-
-  await Promise.all(
-    Array.from({ length: 10 }, () =>
-      createCatch(
-        randomFrom(userList).id,
-        randomFrom(speciesList).id,
-        randomFrom(locationList).id
-      )
-    )
+  console.log(
+    [
+      'Seeded deterministic PechoMax demo data:',
+      `${seedLevels.length} levels`,
+      `${seedUsers.length} users`,
+      `${seedCategories.length} categories`,
+      `${seedSpecies.length} species`,
+      `${seedLocations.length} locations`,
+      `${seedSpeciesLocations.length} speciesLocation rows`,
+      `${seedCatches.length} catches`,
+      `${seedConversations.length} conversations`,
+      `${seedMessages.length} messages`,
+    ].join(' ')
   )
 }
