@@ -17,10 +17,17 @@ $ npm install
 ## Running the app
 
 ```bash
-# development
+# development — local server + Postgres in Docker
+$ docker compose -f deps.docker-compose.yaml up -d   # start Postgres only
+$ npm run migrate                                     # apply migrations (first time, or after schema changes)
+$ npm run dev                                         # start local dev server on localhost:3000
+```
+
+```bash
+# development — everything in Docker (server + Drizzle Studio + Postgres)
 $ docker compose -f dev.docker-compose.yaml up -d
-$ npm run dev
-# launching on localhost:3000
+# server on localhost:4000, Drizzle Studio on localhost:4983
+# migrations run automatically on container start
 ```
 
 ```bash
@@ -29,4 +36,28 @@ $ docker compose up -d
 # launching on localhost/api
 ```
 
+> **Note:** do not run `dev.docker-compose.yaml` and `npm run dev` at the same time — both would try to bind Drizzle Studio on port `4983`.
+
+### Schema changes
+
+```bash
+$ npm run --filter @repo/schemas migration:generate  # generate a new migration file
+$ npm run migrate                                     # apply it
+```
+
 when running in production mode, `parent.docker-compose.yaml` and `parent.nginx.conf` are supposed to be placed in the parent directory of [pechomax-backend](https://github.com/mathiascoutant/pechomax-backend) and [pechomax-frontend-web](https://github.com/mathiascoutant/pechomax-frontend-web).
+
+## Demo accounts
+
+All accounts share the same password: **`PechoMax123!`**
+
+| Username | Email | Role | Catches |
+|---|---|---|---|
+| Admin PechoMax | admin@pechomax.dev | Admin | 0 |
+| Marc Dubois | marc@pechomax.dev | User | 5 |
+| Sophie Martin | sophie@pechomax.dev | User | 5 |
+| Thomas Laurent | thomas@pechomax.dev | User | 5 |
+| Nicolas Bernard | nicolas@pechomax.dev | User | 5 |
+| Julie Chen | julie@pechomax.dev | User | 4 |
+| Camille Moreau | camille@pechomax.dev | User | 4 |
+| Hugo Petit | hugo@pechomax.dev | User | 4 |

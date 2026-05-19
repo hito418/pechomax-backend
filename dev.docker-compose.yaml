@@ -10,6 +10,15 @@ services:
     ports:
       - 4000:4000 # hono
       - 4983:4983 # drizzle-studio
-    command: pnpm turbo -F @repo/server -F @repo/schemas dev
+    entrypoint: ['/app/entrypoint.dev.sh']
+    environment:
+      PG_HOST: postgres
+      PG_PORT: 5432
+      PG_USER: pguser
+      PG_PASSWORD: pgpassword
+      PG_DB: pechomax_db
+    depends_on:
+      postgres:
+        condition: service_healthy
     volumes:
       - ./:/app

@@ -20,7 +20,9 @@ import seedDb from './lib/seed'
 if (process?.env?.NODE_ENV === 'DEV') {
   try {
     await seedDb()
-  } catch {}
+  } catch (e) {
+    console.error('Seed failed:', e)
+  }
 }
 
 const app = new HonoVar()
