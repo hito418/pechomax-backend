@@ -16,6 +16,7 @@ import speciesRoute from './routes/species'
 import locationsRoute from './routes/location'
 import speciesLocationRoute from './routes/speciesLocation'
 import levelsRoute from './routes/levels'
+import locationCommentsRoute from './routes/locationComments'
 import seedDb from './lib/seed'
 
 if (process?.env?.NODE_ENV === 'DEV') {
@@ -46,6 +47,7 @@ const app = new HonoVar()
   .route('/', catchesRoute)
   .route('/', speciesRoute)
   .route('/', locationsRoute)
+  .route('/', locationCommentsRoute)
   .route('/', speciesLocationRoute)
   .route('/', levelsRoute)
 

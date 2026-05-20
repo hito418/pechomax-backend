@@ -4,7 +4,10 @@ import { catchLikes } from './schemas/catchLikes'
 import { catches } from './schemas/catches'
 import { categories } from './schemas/categories'
 import { conversations } from './schemas/conversations'
+import { favoriteLocations } from './schemas/favoriteLocations'
 import { levels } from './schemas/levels'
+import { locationComments } from './schemas/locationComments'
+import { locationRatings } from './schemas/locationRatings'
 import { locations } from './schemas/locations'
 import { messages } from './schemas/messages'
 import { species } from './schemas/species'
@@ -18,7 +21,10 @@ export type Database = {
   catches: Kyselify<typeof catches>
   categories: Kyselify<typeof categories>
   conversations: Kyselify<typeof conversations>
+  favorite_locations: Kyselify<typeof favoriteLocations>
   levels: Kyselify<typeof levels>
+  location_comments: Kyselify<typeof locationComments>
+  location_ratings: Kyselify<typeof locationRatings>
   locations: Kyselify<typeof locations>
   messages: Kyselify<typeof messages>
   species: Kyselify<typeof species>

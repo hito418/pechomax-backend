@@ -7,8 +7,11 @@ import {
   seedCatches,
   seedCategories,
   seedConversations,
+  seedFavoriteLocations,
   seedIds,
   seedLevels,
+  seedLocationComments,
+  seedLocationRatings,
   seedLocations,
   seedMessages,
   seedSpecies,
@@ -36,6 +39,9 @@ function catchTimestamp(date: string) {
 }
 
 async function clearDatabase() {
+  await db.deleteFrom('favorite_locations').execute()
+  await db.deleteFrom('location_comments').execute()
+  await db.deleteFrom('location_ratings').execute()
   await db.deleteFrom('catch_likes').execute()
   await db.deleteFrom('catch_comments').execute()
   await db.deleteFrom('saved_catches').execute()
@@ -122,6 +128,43 @@ async function insertSpeciesLocations() {
         id: `50000000-0000-4000-8000-${String(index + 1).padStart(12, '0')}`,
         location_id: locationId,
         species_id: speciesId,
+      }))
+    )
+    .execute()
+}
+
+async function insertLocationSocial() {
+  await db
+    .insertInto('favorite_locations')
+    .values(
+      seedFavoriteLocations.map(([locationId, userId], index) => ({
+        id: `b1000000-0000-4000-8000-${String(index + 1).padStart(12, '0')}`,
+        location_id: locationId,
+        user_id: userId,
+      }))
+    )
+    .execute()
+
+  await db
+    .insertInto('location_ratings')
+    .values(
+      seedLocationRatings.map(([locationId, userId, rating], index) => ({
+        id: `b2000000-0000-4000-8000-${String(index + 1).padStart(12, '0')}`,
+        location_id: locationId,
+        rating,
+        user_id: userId,
+      }))
+    )
+    .execute()
+
+  await db
+    .insertInto('location_comments')
+    .values(
+      seedLocationComments.map(([locationId, userId, content], index) => ({
+        content,
+        id: `b3000000-0000-4000-8000-${String(index + 1).padStart(12, '0')}`,
+        location_id: locationId,
+        user_id: userId,
       }))
     )
     .execute()
@@ -271,6 +314,7 @@ export default async function seedDb(options: SeedOptions = {}) {
   await insertSpecies()
   await insertLocations()
   await insertSpeciesLocations()
+  await insertLocationSocial()
   await insertCatches()
   await insertCatchSocial()
   await updateUserScores()
@@ -286,6 +330,9 @@ export default async function seedDb(options: SeedOptions = {}) {
       `${seedSpecies.length} species`,
       `${seedLocations.length} locations`,
       `${seedSpeciesLocations.length} speciesLocation rows`,
+      `${seedFavoriteLocations.length} favorite locations`,
+      `${seedLocationRatings.length} location ratings`,
+      `${seedLocationComments.length} location comments`,
       `${seedCatches.length} catches`,
       '5 catch likes',
       '5 catch comments',

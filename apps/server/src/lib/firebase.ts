@@ -47,3 +47,7 @@ export async function uploadMessage(file: File) {
 export async function uploadCatch(file: File) {
   return uploadImage(file, 'catch')
 }
+
+export async function uploadSpot(file: File) {
+  return uploadImage(file, 'spot')
+}

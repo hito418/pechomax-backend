@@ -93,6 +93,14 @@ export const catchPictures = [
   'https://images.unsplash.com/photo-1470165511815-34e78ff7a111?auto=format&fit=crop&w=1200&q=80',
 ]
 
+export const spotPictures = [
+  'https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1200&q=80',
+  'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1200&q=80',
+  'https://images.unsplash.com/photo-1470165511815-34e78ff7a111?auto=format&fit=crop&w=1200&q=80',
+  'https://images.unsplash.com/photo-1483683804023-6ccdb62f86ef?auto=format&fit=crop&w=1200&q=80',
+  'https://images.unsplash.com/photo-1437622368342-7a3d73a34c8f?auto=format&fit=crop&w=1200&q=80',
+]
+
 export const seedLevels = [
   { id: seedIds.levels.debutant, title: 'Débutant', value: 1, start: 0, end: 999 },
   { id: seedIds.levels.amateur, title: 'Amateur', value: 2, start: 1000, end: 2999 },
@@ -295,6 +303,8 @@ export const seedLocations = [
     name: 'Lac du Bourget',
     latitude: '45.739100',
     longitude: '5.865100',
+    pictures: [spotPictures[0]],
+    water_type: 'freshwater',
     user_id: seedIds.users.sophie,
     description:
       'Grand lac alpin avec de belles bordures rocheuses, herbiers marqués et cassures intéressantes pour les carnassiers.',
@@ -304,6 +314,8 @@ export const seedLocations = [
     name: 'Lac d’Annecy',
     latitude: '45.850300',
     longitude: '6.165500',
+    pictures: [spotPictures[0]],
+    water_type: 'freshwater',
     user_id: seedIds.users.sophie,
     description:
       'Eau claire et profonde, idéal pour pêcher tôt le matin en finesse autour des tombants et des ports.',
@@ -313,6 +325,8 @@ export const seedLocations = [
     name: 'Étang de Berre',
     latitude: '43.478200',
     longitude: '5.117900',
+    pictures: [spotPictures[1]],
+    water_type: 'sea',
     user_id: seedIds.users.camille,
     description:
       'Grande lagune méditerranéenne, postes exposés au vent et belles opportunités sur les zones de bordure.',
@@ -322,6 +336,8 @@ export const seedLocations = [
     name: 'Canal du Midi',
     latitude: '43.604700',
     longitude: '1.444200',
+    pictures: [spotPictures[2]],
+    water_type: 'freshwater',
     user_id: seedIds.users.thomas,
     description:
       'Canal régulier avec péniches, arbres noyés et bordures lentes. Très bon terrain pour les pêches précises.',
@@ -331,6 +347,8 @@ export const seedLocations = [
     name: 'Loire à Tours',
     latitude: '47.394100',
     longitude: '0.684800',
+    pictures: [spotPictures[2]],
+    water_type: 'freshwater',
     user_id: seedIds.users.thomas,
     description:
       'Secteur de Loire alternant radiers, veines de courant et amortis. Les niveaux d’eau changent vite.',
@@ -340,6 +358,8 @@ export const seedLocations = [
     name: 'Seine à Boulogne-Billancourt',
     latitude: '48.839700',
     longitude: '2.239900',
+    pictures: [spotPictures[3]],
+    water_type: 'freshwater',
     user_id: seedIds.users.marc,
     description:
       'Spot urbain accessible, quais profonds et zones d’ombre productives au lever du jour.',
@@ -349,6 +369,8 @@ export const seedLocations = [
     name: 'Lac de Lacanau',
     latitude: '44.978900',
     longitude: '-1.095600',
+    pictures: [spotPictures[0]],
+    water_type: 'freshwater',
     user_id: seedIds.users.nicolas,
     description:
       'Lac landais bordé de roselières, herbiers denses et hauts-fonds parfaits pour le brochet et le black-bass.',
@@ -358,6 +380,8 @@ export const seedLocations = [
     name: 'Lac de Serre-Ponçon',
     latitude: '44.505400',
     longitude: '6.355800',
+    pictures: [spotPictures[0]],
+    water_type: 'freshwater',
     user_id: seedIds.users.sophie,
     description:
       'Grand lac de montagne avec pointes, baies profondes et eaux souvent très claires.',
@@ -367,6 +391,8 @@ export const seedLocations = [
     name: 'Rhône à Lyon',
     latitude: '45.764000',
     longitude: '4.835700',
+    pictures: [spotPictures[3]],
+    water_type: 'freshwater',
     user_id: seedIds.users.marc,
     description:
       'Courant puissant, piles de pont et zones de contre-courant. Prévoir du matériel robuste.',
@@ -376,6 +402,8 @@ export const seedLocations = [
     name: 'Port de La Rochelle',
     latitude: '46.156600',
     longitude: '-1.153600',
+    pictures: [spotPictures[1]],
+    water_type: 'sea',
     user_id: seedIds.users.julie,
     description:
       'Port abrité avec bordures, pontons et passages réguliers de poissons marins selon la marée.',
@@ -385,6 +413,8 @@ export const seedLocations = [
     name: 'Golfe du Morbihan',
     latitude: '47.586100',
     longitude: '-2.760800',
+    pictures: [spotPictures[1]],
+    water_type: 'sea',
     user_id: seedIds.users.hugo,
     description:
       'Courants puissants, herbiers et îlots. Les horaires de marée sont déterminants.',
@@ -394,6 +424,8 @@ export const seedLocations = [
     name: 'Dordogne à Argentat',
     latitude: '45.093600',
     longitude: '1.938900',
+    pictures: [spotPictures[4]],
+    water_type: 'freshwater',
     user_id: seedIds.users.hugo,
     description:
       'Rivière claire avec courants, fosses et radiers. Très beau secteur pour les salmonidés.',
@@ -452,6 +484,33 @@ export const seedSpeciesLocations = [
   [seedIds.locations.argentat, seedIds.species.truite],
   [seedIds.locations.argentat, seedIds.species.gardon],
   [seedIds.locations.argentat, seedIds.species.perche],
+] as const
+
+export const seedFavoriteLocations = [
+  [seedIds.locations.rhoneLyon, seedIds.users.marc],
+  [seedIds.locations.bourget, seedIds.users.marc],
+  [seedIds.locations.laRochelle, seedIds.users.marc],
+  [seedIds.locations.lacanau, seedIds.users.sophie],
+  [seedIds.locations.morbihan, seedIds.users.julie],
+] as const
+
+export const seedLocationRatings = [
+  [seedIds.locations.rhoneLyon, seedIds.users.marc, 5],
+  [seedIds.locations.rhoneLyon, seedIds.users.camille, 4],
+  [seedIds.locations.bourget, seedIds.users.sophie, 5],
+  [seedIds.locations.bourget, seedIds.users.marc, 4],
+  [seedIds.locations.laRochelle, seedIds.users.julie, 5],
+  [seedIds.locations.laRochelle, seedIds.users.hugo, 4],
+  [seedIds.locations.lacanau, seedIds.users.nicolas, 5],
+  [seedIds.locations.morbihan, seedIds.users.hugo, 5],
+] as const
+
+export const seedLocationComments = [
+  [seedIds.locations.rhoneLyon, seedIds.users.camille, 'Courant puissant, les bordures restent pechables avec du materiel solide.'],
+  [seedIds.locations.bourget, seedIds.users.marc, 'Tres beau secteur au lever du jour, attention aux herbiers proches du bord.'],
+  [seedIds.locations.laRochelle, seedIds.users.hugo, 'Le montant concentre bien les poissons autour des pontons.'],
+  [seedIds.locations.lacanau, seedIds.users.sophie, 'Spot propre et accessible, parfait pour chercher brochet et black-bass.'],
+  [seedIds.locations.morbihan, seedIds.users.julie, 'Surveillez les horaires de maree, le courant change vite.'],
 ] as const
 
 export type SeedCatch = {

@@ -11,6 +11,8 @@ export const locations = pgTable('locations', {
   latitude: text('latitude').unique().notNull(),
   name: text('name').notNull(),
   description: text('description'),
+  pictures: text('pictures').array().notNull().default([]),
+  waterType: text('water_type').notNull().default('freshwater'),
   userId: uuid('user_id').references(() => users.id, { onDelete: 'cascade' }),
   ...timestamps,
 })
