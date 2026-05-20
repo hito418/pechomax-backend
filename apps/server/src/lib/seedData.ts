@@ -102,12 +102,12 @@ export const spotPictures = [
 ]
 
 export const seedLevels = [
-  { id: seedIds.levels.debutant, title: 'DÃ©butant', value: 1, start: 0, end: 999 },
+  { id: seedIds.levels.debutant, title: 'Débutant', value: 1, start: 0, end: 999 },
   { id: seedIds.levels.amateur, title: 'Amateur', value: 2, start: 1000, end: 2999 },
-  { id: seedIds.levels.confirme, title: 'ConfirmÃ©', value: 3, start: 3000, end: 6999 },
+  { id: seedIds.levels.confirme, title: 'Confirmé', value: 3, start: 3000, end: 6999 },
   { id: seedIds.levels.expert, title: 'Expert', value: 4, start: 7000, end: 14999 },
   { id: seedIds.levels.guide, title: 'Guide local', value: 5, start: 15000, end: 29999 },
-  { id: seedIds.levels.legende, title: 'LÃ©gende', value: 6, start: 30000, end: null },
+  { id: seedIds.levels.legende, title: 'Légende', value: 6, start: 30000, end: null },
 ]
 
 export const seedUsers = [
