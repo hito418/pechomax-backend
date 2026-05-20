@@ -158,16 +158,17 @@ const catchesRoute = new HonoVar()
       }
 
       const picturesUrl = pictures ? [await uploadCatch(pictures)] : []
+      const scoreWeight = Math.max(1, Math.round(weight / 1000))
 
       const catchItem = await db
         .insertInto('catches')
         .values({
-          date: date.toISOString(),
+          date: date.toISOString().slice(0, 10),
           length,
           weight,
           location_id: locationId,
           pictures: picturesUrl,
-          point_value: species.point_value * length * weight,
+          point_value: species.point_value * length * scoreWeight,
           user_id: id,
           description,
           species_id: speciesId,
@@ -179,16 +180,14 @@ const catchesRoute = new HonoVar()
         return ctx.json({ message: 'Failed to create catch' }, 500)
       }
 
+      const newScore = (score ?? 0) + catchItem.point_value
       const newLevel = await db
         .selectFrom('levels')
         .selectAll()
         .where((eb) =>
-          eb.or([
-            eb.and([
-              eb('start', '>=', score ?? 0 + catchItem.point_value),
-              eb('end', '<', score ?? 0 + catchItem.point_value),
-            ]),
-            eb('end', 'is', null),
+          eb.and([
+            eb('start', '<=', newScore),
+            eb.or([eb('end', '>=', newScore), eb('end', 'is', null)]),
           ])
         )
         .orderBy('value asc')
@@ -203,7 +202,33 @@ const catchesRoute = new HonoVar()
         .where('id', '=', id)
         .execute()
 
-      return ctx.json(catchItem)
+      const returningCatch = await db
+        .selectFrom('catches')
+        .selectAll('catches')
+        .select((eb) => [
+          jsonObjectFrom(
+            eb
+              .selectFrom('users')
+              .selectAll()
+              .whereRef('users.id', '=', 'catches.user_id')
+          ).as('user'),
+          jsonObjectFrom(
+            eb
+              .selectFrom('species')
+              .selectAll()
+              .whereRef('species.id', '=', 'catches.species_id')
+          ).as('species'),
+          jsonObjectFrom(
+            eb
+              .selectFrom('locations')
+              .selectAll()
+              .whereRef('locations.id', '=', 'catches.location_id')
+          ).as('location'),
+        ])
+        .where('catches.id', '=', catchItem.id)
+        .executeTakeFirst()
+
+      return ctx.json(returningCatch ?? catchItem)
     }
   )
   .put(

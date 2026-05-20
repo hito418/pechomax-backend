@@ -60,12 +60,20 @@ function speciesPointValue(speciesId: string) {
   return species?.point_value ?? 1
 }
 
+function seedWeightGrams(weight: number) {
+  return weight < 100 ? weight * 1000 : weight
+}
+
+function scoreWeightUnit(weight: number) {
+  return Math.max(1, Math.round(seedWeightGrams(weight) / 1000))
+}
+
 function scoreByUser() {
   return seedCatches.reduce<Record<string, number>>((acc, catchItem) => {
     const score =
       speciesPointValue(catchItem.species_id) *
       catchItem.length *
-      catchItem.weight
+      scoreWeightUnit(catchItem.weight)
     acc[catchItem.user_id] = (acc[catchItem.user_id] ?? 0) + score
     return acc
   }, {})
@@ -135,7 +143,7 @@ async function insertCatches() {
         user_id: catchItem.user_id,
         created_at: catchTimestamp(catchItem.date),
         updated_at: catchTimestamp(catchItem.date),
-        weight: catchItem.weight,
+        weight: seedWeightGrams(catchItem.weight),
       }))
     )
     .execute()

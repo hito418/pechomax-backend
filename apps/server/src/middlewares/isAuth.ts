@@ -21,7 +21,13 @@ export const isAuth: (
       return ctx.json({ message: 'Unauthorized' }, 401)
     }
 
-    const payload = await verify(token, JWT_SECRET)
+    let payload: Awaited<ReturnType<typeof verify>>
+
+    try {
+      payload = await verify(token, JWT_SECRET)
+    } catch {
+      return ctx.json({ message: 'Unauthorized' }, 401)
+    }
 
     if (!payload) {
       return ctx.json({ message: 'Unauthorized' }, 401)
