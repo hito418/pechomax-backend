@@ -36,6 +36,9 @@ function catchTimestamp(date: string) {
 }
 
 async function clearDatabase() {
+  await db.deleteFrom('catch_likes').execute()
+  await db.deleteFrom('catch_comments').execute()
+  await db.deleteFrom('saved_catches').execute()
   await db.deleteFrom('messages').execute()
   await db.deleteFrom('conversations').execute()
   await db.deleteFrom('catches').execute()
@@ -167,6 +170,60 @@ async function updateUserScores() {
   )
 }
 
+async function insertCatchSocial() {
+  const comments = [
+    [seedCatches[0].id, seedIds.users.sophie, 'Belle prise, le courant devait etre fort sur ce secteur.'],
+    [seedCatches[0].id, seedIds.users.thomas, 'Le shad naturel marche tres bien en ce moment.'],
+    [seedCatches[1].id, seedIds.users.marc, 'Super poisson, les herbiers du Bourget sont magnifiques.'],
+    [seedCatches[3].id, seedIds.users.hugo, 'Joli bar, la maree a l air parfaite.'],
+    [seedCatches[4].id, seedIds.users.camille, 'Black-bass propre, remise a l eau nickel.'],
+  ] as const
+
+  await db
+    .insertInto('catch_comments')
+    .values(
+      comments.map(([catchId, userId, content], index) => ({
+        catch_id: catchId,
+        content,
+        id: `a1000000-0000-4000-8000-${String(index + 1).padStart(12, '0')}`,
+        user_id: userId,
+      }))
+    )
+    .execute()
+
+  await db
+    .insertInto('catch_likes')
+    .values(
+      [
+        [seedCatches[0].id, seedIds.users.sophie],
+        [seedCatches[0].id, seedIds.users.thomas],
+        [seedCatches[1].id, seedIds.users.marc],
+        [seedCatches[3].id, seedIds.users.hugo],
+        [seedCatches[4].id, seedIds.users.camille],
+      ].map(([catchId, userId], index) => ({
+        catch_id: catchId,
+        id: `a2000000-0000-4000-8000-${String(index + 1).padStart(12, '0')}`,
+        user_id: userId,
+      }))
+    )
+    .execute()
+
+  await db
+    .insertInto('saved_catches')
+    .values(
+      [
+        [seedCatches[0].id, seedIds.users.marc],
+        [seedCatches[1].id, seedIds.users.marc],
+        [seedCatches[3].id, seedIds.users.sophie],
+      ].map(([catchId, userId], index) => ({
+        catch_id: catchId,
+        id: `a3000000-0000-4000-8000-${String(index + 1).padStart(12, '0')}`,
+        user_id: userId,
+      }))
+    )
+    .execute()
+}
+
 async function insertConversations() {
   await db
     .insertInto('conversations')
@@ -215,6 +272,7 @@ export default async function seedDb(options: SeedOptions = {}) {
   await insertLocations()
   await insertSpeciesLocations()
   await insertCatches()
+  await insertCatchSocial()
   await updateUserScores()
   await insertConversations()
   await insertMessages()
@@ -229,6 +287,9 @@ export default async function seedDb(options: SeedOptions = {}) {
       `${seedLocations.length} locations`,
       `${seedSpeciesLocations.length} speciesLocation rows`,
       `${seedCatches.length} catches`,
+      '5 catch likes',
+      '5 catch comments',
+      '3 saved catches',
       `${seedConversations.length} conversations`,
       `${seedMessages.length} messages`,
     ].join(' ')

@@ -8,6 +8,13 @@
       "when": 1779198609391,
       "tag": "0000_amused_hercules",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1779270000000,
+      "tag": "0001_social_catches",
+      "breakpoints": true
     }
   ]
 }

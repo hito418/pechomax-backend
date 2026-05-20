@@ -6,6 +6,7 @@ import authRoute from './routes/auth'
 import { cors } from 'hono/cors'
 import usersRoute from './routes/users'
 import categoriesRoute from './routes/categories'
+import commentsRoute from './routes/comments'
 import conversationsRoute from './routes/conversations'
 import messagesRoute from './routes/messages'
 import { HonoVar } from './lib/hono'
@@ -39,6 +40,7 @@ const app = new HonoVar()
   .route('/', authRoute)
   .route('/', usersRoute)
   .route('/', categoriesRoute)
+  .route('/', commentsRoute)
   .route('/', conversationsRoute)
   .route('/', messagesRoute)
   .route('/', catchesRoute)
