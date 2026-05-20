@@ -13,10 +13,10 @@ const commentsRoute = new HonoVar()
       sub: { id: userId },
     } = ctx.get('userPayload')
 
-    const deleteQuery = db.deleteFrom('catch_comments').where('id', '=', id)
+    let deleteQuery = db.deleteFrom('catch_comments').where('id', '=', id)
 
     if (role !== 'Admin') {
-      deleteQuery.where('user_id', '=', userId)
+      deleteQuery = deleteQuery.where('user_id', '=', userId)
     }
 
     const deleted = await deleteQuery.returning('id').executeTakeFirst()

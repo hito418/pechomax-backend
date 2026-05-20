@@ -14,8 +14,10 @@ export const isAuth: (
     const bearerToken = authorization?.startsWith('Bearer ')
       ? authorization.slice('Bearer '.length)
       : undefined
-    const token =
-      (await getSignedCookie(ctx, COOKIE_SECRET, 'access_token')) ?? bearerToken
+    const cookieToken = bearerToken
+      ? undefined
+      : await getSignedCookie(ctx, COOKIE_SECRET, 'access_token')
+    const token = bearerToken ?? cookieToken
 
     if (!token) {
       return ctx.json({ message: 'Unauthorized' }, 401)

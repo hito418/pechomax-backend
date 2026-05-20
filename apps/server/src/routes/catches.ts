@@ -510,12 +510,12 @@ const catchesRoute = new HonoVar()
         }
       }
 
-      const catchItemQuery = db.updateTable('catches').set(updatePayload)
+      let catchItemQuery = db.updateTable('catches').set(updatePayload)
 
       if (role === 'Admin') {
-        catchItemQuery.where('id', '=', id)
+        catchItemQuery = catchItemQuery.where('id', '=', id)
       } else {
-        catchItemQuery.where((eb) =>
+        catchItemQuery = catchItemQuery.where((eb) =>
           eb.and([eb('id', '=', id), eb('user_id', '=', userId)])
         )
       }
@@ -541,12 +541,12 @@ const catchesRoute = new HonoVar()
         role,
       } = ctx.get('userPayload')
 
-      const catchListQuery = db.deleteFrom('catches')
+      let catchListQuery = db.deleteFrom('catches')
 
       if (role === 'Admin') {
-        catchListQuery.where('id', '=', id)
+        catchListQuery = catchListQuery.where('id', '=', id)
       } else {
-        catchListQuery.where((eb) =>
+        catchListQuery = catchListQuery.where((eb) =>
           eb.and([eb('id', '=', id), eb('user_id', '=', userId)])
         )
       }
