@@ -216,10 +216,10 @@ async function updateUserScores() {
 async function insertCatchSocial() {
   const comments = [
     [seedCatches[0].id, seedIds.users.sophie, 'Belle prise, le courant devait etre fort sur ce secteur.'],
-    [seedCatches[0].id, seedIds.users.thomas, 'Le shad naturel marche tres bien en ce moment.'],
+    [seedCatches[0].id, seedIds.users.marc, 'Le shad naturel marche tres bien en ce moment.'],
     [seedCatches[1].id, seedIds.users.marc, 'Super poisson, les herbiers du Bourget sont magnifiques.'],
-    [seedCatches[3].id, seedIds.users.hugo, 'Joli bar, la maree a l air parfaite.'],
-    [seedCatches[4].id, seedIds.users.camille, 'Black-bass propre, remise a l eau nickel.'],
+    [seedCatches[3].id, seedIds.users.marc, 'Joli bar, la maree a l air parfaite.'],
+    [seedCatches[4].id, seedIds.users.sophie, 'Black-bass propre, remise a l eau nickel.'],
   ] as const
 
   await db
@@ -239,10 +239,10 @@ async function insertCatchSocial() {
     .values(
       [
         [seedCatches[0].id, seedIds.users.sophie],
-        [seedCatches[0].id, seedIds.users.thomas],
+        [seedCatches[0].id, seedIds.users.marc],
         [seedCatches[1].id, seedIds.users.marc],
-        [seedCatches[3].id, seedIds.users.hugo],
-        [seedCatches[4].id, seedIds.users.camille],
+        [seedCatches[3].id, seedIds.users.marc],
+        [seedCatches[4].id, seedIds.users.sophie],
       ].map(([catchId, userId], index) => ({
         catch_id: catchId,
         id: `a2000000-0000-4000-8000-${String(index + 1).padStart(12, '0')}`,

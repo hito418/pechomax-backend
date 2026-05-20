@@ -97,6 +97,7 @@ const catchesRoute = new HonoVar()
         ).as('location'),
       ])
       .where('catches.user_id', '=', id)
+      .orderBy('catches.updated_at desc')
       .execute()
 
     return ctx.json(catchList)
