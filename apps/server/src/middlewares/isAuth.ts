@@ -10,7 +10,12 @@ export const isAuth: (
 ) => HonoVarMiddleware<{ userPayload: Payload }> = function (...roleList) {
   return async (ctx, next) => {
     const { COOKIE_SECRET, JWT_SECRET } = env(ctx)
-    const token = await getSignedCookie(ctx, COOKIE_SECRET, 'access_token')
+    const authorization = ctx.req.header('Authorization')
+    const bearerToken = authorization?.startsWith('Bearer ')
+      ? authorization.slice('Bearer '.length)
+      : undefined
+    const token =
+      (await getSignedCookie(ctx, COOKIE_SECRET, 'access_token')) ?? bearerToken
 
     if (!token) {
       return ctx.json({ message: 'Unauthorized' }, 401)

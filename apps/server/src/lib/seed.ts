@@ -1,4 +1,5 @@
 import { hash } from '@node-rs/argon2'
+import './env'
 import { db } from './db'
 import {
   catchPictures,
@@ -188,8 +189,12 @@ async function insertMessages() {
     .execute()
 }
 
-export default async function seedDb() {
-  if (process.env.NODE_ENV !== 'DEV') {
+type SeedOptions = {
+  allowNonDev?: boolean
+}
+
+export default async function seedDb(options: SeedOptions = {}) {
+  if (process.env.NODE_ENV !== 'DEV' && !options.allowNonDev) {
     console.warn('Skipping seed: deterministic demo seed only runs in DEV.')
     return
   }
@@ -220,4 +225,24 @@ export default async function seedDb() {
       `${seedMessages.length} messages`,
     ].join(' ')
   )
+}
+
+async function runCliSeed() {
+  if (!process.argv.includes('--confirm-demo-seed')) {
+    console.error(
+      'Refusing to seed. Re-run with --confirm-demo-seed to replace demo data.'
+    )
+    process.exit(1)
+  }
+
+  await seedDb({ allowNonDev: true })
+  await db.destroy()
+}
+
+if (process.argv[1] && import.meta.url.endsWith(process.argv[1].replace(/\\/g, '/'))) {
+  runCliSeed().catch(async (error) => {
+    console.error(error)
+    await db.destroy()
+    process.exit(1)
+  })
 }

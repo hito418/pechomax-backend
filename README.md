@@ -45,6 +45,26 @@ $ npm run --filter @repo/schemas migration:generate  # generate a new migration 
 $ npm run migrate                                     # apply it
 ```
 
+### Demo seed
+
+The deterministic demo seed is destructive: it clears PechoMax demo tables and reinserts demo users, species, locations, catches, conversations, messages, categories, and levels. It only runs automatically in local `NODE_ENV=DEV`.
+
+To seed a deployed demo database intentionally:
+
+```bash
+$ npm run migrate
+$ npm run seed:demo
+```
+
+Then verify:
+
+```bash
+$ curl https://pechomax.striffe.dev/species
+$ curl https://pechomax.striffe.dev/locations/all
+$ curl https://pechomax.striffe.dev/catches
+$ curl https://pechomax.striffe.dev/conversations
+```
+
 when running in production mode, `parent.docker-compose.yaml` and `parent.nginx.conf` are supposed to be placed in the parent directory of [pechomax-backend](https://github.com/mathiascoutant/pechomax-backend) and [pechomax-frontend-web](https://github.com/mathiascoutant/pechomax-frontend-web).
 
 ## Demo accounts

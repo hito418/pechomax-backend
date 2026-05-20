@@ -11,6 +11,7 @@
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
     "typecheck": "tsc --noEmit",
+    "seed:demo": "tsx --env-file .env src/lib/seed.ts --confirm-demo-seed",
     "start": "node --env-file .env dist/main.js",
     "start:no-env": "node dist/main.js",
     "dev": "tsx --env-file .env --watch src/main.ts"

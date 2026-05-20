@@ -102,7 +102,7 @@ const authRoute = new HonoVar()
 
         await setSignedCookie(ctx, 'access_token', token, COOKIE_SECRET)
 
-        return ctx.json(payload, 201)
+        return ctx.json({ ...payload, token }, 201)
       }
 
       return ctx.json({ message: 'Failed to register' }, 500)
@@ -151,7 +151,7 @@ const authRoute = new HonoVar()
 
         await setSignedCookie(ctx, 'access_token', token, COOKIE_SECRET)
 
-        return ctx.json(payload, 200)
+        return ctx.json({ ...payload, token }, 200)
       }
 
       return ctx.json({ message: 'Wrong password' }, 401)
