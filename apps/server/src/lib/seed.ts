@@ -226,23 +226,3 @@ export default async function seedDb(options: SeedOptions = {}) {
     ].join(' ')
   )
 }
-
-async function runCliSeed() {
-  if (!process.argv.includes('--confirm-demo-seed')) {
-    console.error(
-      'Refusing to seed. Re-run with --confirm-demo-seed to replace demo data.'
-    )
-    process.exit(1)
-  }
-
-  await seedDb({ allowNonDev: true })
-  await db.destroy()
-}
-
-if (process.argv[1] && import.meta.url.endsWith(process.argv[1].replace(/\\/g, '/'))) {
-  runCliSeed().catch(async (error) => {
-    console.error(error)
-    await db.destroy()
-    process.exit(1)
-  })
-}
