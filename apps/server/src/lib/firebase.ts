@@ -19,12 +19,13 @@ function getBucket() {
 async function uploadImage(file: File, path: string) {
   const bucket = getBucket()
   const name = uuidv4()
-  const extension = file.type.split('/').at(-1)
+  const contentType = file.type?.startsWith('image/') ? file.type : 'image/jpeg'
+  const extension = contentType.split('/').at(-1) === 'jpeg' ? 'jpg' : contentType.split('/').at(-1)
   const objectPath = `${path}/${name}.${extension}`
   const downloadToken = uuidv4()
 
   await bucket.file(objectPath).save(Buffer.from(await file.arrayBuffer()), {
-    contentType: file.type,
+    contentType,
     metadata: {
       metadata: {
         firebaseStorageDownloadTokens: downloadToken,
