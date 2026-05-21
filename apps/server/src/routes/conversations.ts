@@ -26,6 +26,12 @@ const conversationsRoute = new HonoVar()
         ).as('user'),
         jsonObjectFrom(
           eb
+            .selectFrom('users')
+            .selectAll()
+            .whereRef('users.id', '=', 'conversations.recipient_id')
+        ).as('recipient'),
+        jsonObjectFrom(
+          eb
             .selectFrom('categories')
             .selectAll()
             .whereRef('categories.id', '=', 'conversations.category_id')
@@ -62,6 +68,12 @@ const conversationsRoute = new HonoVar()
         ).as('user'),
         jsonObjectFrom(
           eb
+            .selectFrom('users')
+            .selectAll()
+            .whereRef('users.id', '=', 'conversations.recipient_id')
+        ).as('recipient'),
+        jsonObjectFrom(
+          eb
             .selectFrom('categories')
             .selectAll()
             .whereRef('categories.id', '=', 'conversations.category_id')
@@ -70,13 +82,26 @@ const conversationsRoute = new HonoVar()
           eb
             .selectFrom('messages')
             .selectAll()
+            .select((eb2) => [
+              jsonObjectFrom(
+                eb2
+                  .selectFrom('users')
+                  .selectAll()
+                  .whereRef('users.id', '=', 'messages.user_id')
+              ).as('user'),
+            ])
             .whereRef('messages.conversation_id', '=', 'conversations.id')
             .orderBy('messages.created_at', 'desc')
             .limit(3)
         ).as('messages'),
       ])
-      .where('conversations.user_id', '=', id)
-      .orderBy('conversations.created_at', 'desc')
+      .where((eb) =>
+        eb.or([
+          eb('conversations.user_id', '=', id),
+          eb('conversations.recipient_id', '=', id),
+        ])
+      )
+      .orderBy('conversations.updated_at', 'desc')
       .execute()
 
     return ctx.json(conversations)
@@ -103,6 +128,12 @@ const conversationsRoute = new HonoVar()
               .selectAll()
               .whereRef('users.id', '=', 'conversations.user_id')
           ).as('user'),
+          jsonObjectFrom(
+            eb
+              .selectFrom('users')
+              .selectAll()
+              .whereRef('users.id', '=', 'conversations.recipient_id')
+          ).as('recipient'),
           jsonObjectFrom(
             eb
               .selectFrom('categories')
@@ -188,18 +219,24 @@ const conversationsRoute = new HonoVar()
       type({
         title: 'string > 3',
         categoryId: 'string',
+        recipientId: 'string?',
       })
     ),
     async (ctx) => {
       const db = ctx.get('database')
       const payload = ctx.get('userPayload')
-      const { title, categoryId } = ctx.req.valid('json')
+      const { title, categoryId, recipientId } = ctx.req.valid('json')
+
+      if (recipientId === payload.sub.id) {
+        return ctx.json({ message: 'Recipient must be different from current user' }, 400)
+      }
 
       const conversationList = await db
         .insertInto('conversations')
         .values({
           title: title,
           category_id: categoryId,
+          recipient_id: recipientId,
           user_id: payload.sub.id,
         })
         .returningAll()
@@ -222,6 +259,7 @@ const conversationsRoute = new HonoVar()
       type({
         title: 'string > 3',
         categoryId: 'string',
+        recipientId: 'string?',
         content: 'string',
         pictures: '(File | null)?',
       })
@@ -229,13 +267,18 @@ const conversationsRoute = new HonoVar()
     async (ctx) => {
       const db = ctx.get('database')
       const payload = ctx.get('userPayload')
-      const { title, categoryId, content, pictures } = ctx.req.valid('form')
+      const { title, categoryId, content, pictures, recipientId } = ctx.req.valid('form')
+
+      if (recipientId === payload.sub.id) {
+        return ctx.json({ message: 'Recipient must be different from current user' }, 400)
+      }
 
       const conversationList = await db
         .insertInto('conversations')
         .values({
           title: title,
           category_id: categoryId,
+          recipient_id: recipientId,
           user_id: payload.sub.id,
         })
         .returningAll()

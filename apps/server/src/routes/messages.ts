@@ -125,6 +125,12 @@ messagesRoute.post(
       return ctx.json({ message: 'Failed to create message' }, 500)
     }
 
+    await db
+      .updateTable('conversations')
+      .set({ updated_at: new Date() })
+      .where('conversations.id', '=', conversationId)
+      .execute()
+
     return ctx.json(messageItem, 201)
   }
 )

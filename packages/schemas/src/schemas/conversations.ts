@@ -14,6 +14,9 @@ export const conversations = pgTable('conversations', {
   userId: uuid('user_id')
     .notNull()
     .references(() => users.id, { onDelete: 'cascade' }),
+  recipientId: uuid('recipient_id').references(() => users.id, {
+    onDelete: 'set null',
+  }),
   ...timestamps,
 })
 
@@ -22,6 +25,10 @@ export const conversationsRelations = relations(
   ({ one, many }) => ({
     user: one(users, {
       fields: [conversations.userId],
+      references: [users.id],
+    }),
+    recipient: one(users, {
+      fields: [conversations.recipientId],
       references: [users.id],
     }),
     category: one(categories, {
